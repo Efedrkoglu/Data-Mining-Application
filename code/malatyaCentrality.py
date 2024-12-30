@@ -5,12 +5,14 @@ import matplotlib.pyplot as plt
 
 df = pd.read_excel("C:/Users/efe44/Desktop/veri madenciliği proje/Clustered_OnlineRetail.xlsx")
 
+df['StockCode'] = df['StockCode'].astype(str)
+df['Country'] = df['Country'].astype(str)
 df['InvoiceYear'] = df['InvoiceDate'].dt.year
 df['InvoiceMonth'] = df['InvoiceDate'].dt.month.astype(str).str.zfill(2)
 df['InvoiceDay'] = df['InvoiceDate'].dt.day
 df['InvoiceTime'] = df['InvoiceDate'].dt.strftime('%H:%M:%S')
 
-features = df[['UnitPrice', 'Quantity', 'InvoiceYear', 'InvoiceMonth', 'InvoiceDay', 'InvoiceTime', 'Country', 'Cluster']]
+features = df[['StockCode', 'UnitPrice', 'Quantity', 'InvoiceYear', 'InvoiceMonth', 'InvoiceDay', 'InvoiceTime', 'Country', 'Cluster']]
 
 rules = {
     "InvoiceMonth": {
@@ -54,12 +56,13 @@ def calculate_malatya_centrality(graph, node):
     return degree_node / neighbor_degrees if neighbor_degrees > 0 else 0
 
 new_sample = {
-    "UnitPrice": 16.63,
-    "Quantity": 1,
+    "StockCode" : "21216",
+    "UnitPrice": 10.79,
+    "Quantity": 5,
     "InvoiceYear": 2011,
-    "InvoiceMonth": "05",
-    "InvoiceDay": 10,
-    "InvoiceTime": "15:09:00",
+    "InvoiceMonth": "10",
+    "InvoiceDay": 17,
+    "InvoiceTime": "09:55:00",
     "Country": "United Kingdom"
 }
 
@@ -106,6 +109,9 @@ for cluster in clusters:
             if row1['Country'] == row2['Country']:
                 common_features += 1
 
+            if row1['StockCode'] == row2['StockCode']:
+                common_features += 1
+
             if common_features > 0:
                 G.add_edge(idx1, idx2, weight=common_features)
 
@@ -135,6 +141,9 @@ for cluster in clusters:
 
         if new_sample['Country'] == row['Country']:
             common_features += 1
+        
+        if new_sample['StockCode'] == row['StockCode']:
+            common_features += 1
 
         if common_features > 0:
             G.add_edge(new_node_id, idx, weight=common_features)
@@ -153,9 +162,9 @@ for cluster in clusters:
     nx.draw_networkx_edges(G, pos, edgelist=[(u, v) for u, v, d in edges])
 
     edge_labels = {(u, v): d['weight'] for u, v, d in edges}
-    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=8, font_color='red')
+    nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10, font_color='red')
 
-    nx.draw_networkx_labels(G, pos, font_size=10, font_color='black')
+    nx.draw_networkx_labels(G, pos, font_size=8, font_color='black')
 
     plt.title(f'Cluster {cluster} Graph\nMalatya Centrality: {malatya_centrality:.4f}')
     plt.show()
